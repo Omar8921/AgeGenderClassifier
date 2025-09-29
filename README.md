@@ -82,6 +82,7 @@ for epoch in range(30):
     val_losses.append(total_loss / len(val_loader))
     print(f', Val Acc: {(val_accs[-1]):.2f}, Val MAE: {(val_losses[-1]):.2f}')
     scheduler.step(val_losses[-1])```
+```
 
 5. Evaluate on validation set to measure **MAE for age** and **accuracy for gender**.
 
