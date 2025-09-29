@@ -46,8 +46,42 @@ pip install torch torchvision albumentations opencv-python
 
 ```python
 model, age_loss, gender_loss, optimizer, scheduler, scaler = get_model()
-# training loop here
-```
+train_accs, train_losses = [], []
+val_accs, val_losses = [], []
+
+for epoch in range(30):
+    total_loss = 0
+    n_correct = 0
+    n_samples = 0
+    for i, (images, ages, genders) in enumerate(train_loader):
+        images = images.to(device)
+        ages = ages.to(device).unsqueeze(1)
+        genders = genders.to(device).unsqueeze(1)
+        age_pred, gender_pred, loss1, loss2 = process_batch(images, ages, genders, model, c1, c2, opt, scaler, True)
+        total_loss += (loss1 + loss2)
+        accuracy = calculcate_accuracy(gender_pred, genders)
+        n_correct += accuracy[0]
+        n_samples += accuracy[1]
+    train_accs.append(n_correct / n_samples)
+    train_losses.append(total_loss / len(train_loader))
+    print(f'Epoch {epoch+1}, Train Acc: {(train_accs[-1]):.2f}, Train MAE: {(train_losses[-1]):.2f}', end='')
+    
+    total_loss = 0
+    n_correct = 0
+    n_samples = 0
+    for i, (images, ages, genders) in enumerate(val_loader):
+        images = images.to(device)
+        ages = ages.to(device).unsqueeze(1)
+        genders = genders.to(device).unsqueeze(1)
+        age_pred, gender_pred, loss1, loss2 = process_batch(images, ages, genders, model, c1, c2, opt, scaler, False)
+        total_loss += (loss1 + loss2)
+        accuracy = calculcate_accuracy(gender_pred, genders)
+        n_correct += accuracy[0]
+        n_samples += accuracy[1]
+    val_accs.append(n_correct / n_samples)
+    val_losses.append(total_loss / len(val_loader))
+    print(f', Val Acc: {(val_accs[-1]):.2f}, Val MAE: {(val_losses[-1]):.2f}')
+    scheduler.step(val_losses[-1])```
 
 5. Evaluate on validation set to measure **MAE for age** and **accuracy for gender**.
 
