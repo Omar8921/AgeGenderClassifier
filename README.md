@@ -1,41 +1,74 @@
-Age and Gender Prediction from Face Images
+# Age and Gender Prediction from Face Images
 
-This project implements a deep learning model to predict age and gender from facial images. The model uses a pretrained ResNet18 backbone with a custom multi-output head for regression (age) and classification (gender). Advanced data augmentation is applied to improve generalization.
+This project implements a **deep learning model** to predict **age** and **gender** from facial images. The model uses a **pretrained ResNet18 backbone** with a custom multi-output head for regression (age) and classification (gender). Advanced **data augmentation** is applied to improve generalization.
 
-Features
+---
 
-Age Prediction: Predicts a continuous age value (normalized).
+## Features
 
-Gender Classification: Binary gender prediction using raw logits with BCE loss.
+* **Age Prediction**: Predicts a continuous age value (normalized).
+* **Gender Classification**: Binary gender prediction using raw logits with BCE loss.
+* **Pretrained Backbone**: Leverages ResNet18 pretrained on ImageNet for feature extraction.
+* **Custom Head**: Intermediate fully-connected layers with ReLU activation and dropout for robust predictions.
+* **Data Augmentation**:
 
-Pretrained Backbone: Leverages ResNet18 pretrained on ImageNet for feature extraction.
+  * Random horizontal flips
+  * Random rotations
+  * Color jitter (brightness, contrast, saturation, hue)
+  * Random grayscale
+  * CoarseDropout (similar to Cutout)
+  * Shift, scale, rotate transforms
+* **Training Techniques**:
 
-Custom Head: Intermediate fully-connected layers with ReLU activation and dropout for robust predictions.
+  * Fine-tuning only top layers (layer3, layer4, and custom head)
+  * AdamW optimizer with weight decay
+  * Learning rate scheduling using ReduceLROnPlateau
+  * Mixed precision training with GradScaler
 
-Data Augmentation:
+---
 
-Random horizontal flips
+## Usage
 
-Random rotations
+1. Install dependencies:
 
-Color jitter (brightness, contrast, saturation, hue)
+```bash
+pip install torch torchvision albumentations opencv-python
+```
 
-Random grayscale
+2. Prepare dataset:
 
-CoarseDropout (similar to Cutout)
+   * Images of faces
+   * Labels for age (continuous) and gender (binary)
 
-Shift, scale, rotate transforms
+3. Apply transformations for training and validation using Albumentations.
 
-Training Techniques:
+4. Train the model:
 
-Fine-tuning only top layers (layer3, layer4, and custom head)
+```python
+model, age_loss, gender_loss, optimizer, scheduler, scaler = get_model()
+# training loop here
+```
 
-AdamW optimizer with weight decay
+5. Evaluate on validation set to measure **MAE for age** and **accuracy for gender**.
 
-Learning rate scheduling using ReduceLROnPlateau
+---
 
-Mixed precision training with GradScaler
+## Results
 
-Usage
+* Training MAE and accuracy improve consistently.
+* Validation MAE/accuracy stabilizes after several epochs, showing strong generalization.
+* Strong data augmentation helps reduce overfitting and improves model robustness.
 
-Install dependencies:
+---
+
+## Future Work
+
+* Explore larger backbones (ResNet34/50) for higher accuracy.
+* Experiment with **MixUp or CutMix** for further generalization.
+* Add **multi-task loss weighting** to balance age and gender predictions.
+
+---
+
+## License
+
+MIT License
